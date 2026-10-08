@@ -19,6 +19,14 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <section className="home-positioning" aria-labelledby="home-positioning-title">
+        <div className="shell home-positioning__inner">
+          <p className="home-positioning__label">SERVIZI DI STAMPA E COMUNICAZIONE</p>
+          <h2 id="home-positioning-title">
+            Stampa di Qualità <span>e Soluzioni Creative</span>
+          </h2>
+        </div>
+      </section>
       <ClientsMarquee />
       <ValuesStrip />
     </>

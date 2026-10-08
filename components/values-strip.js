@@ -16,7 +16,7 @@ export default function ValuesStrip() {
       <div className="shell values-strip__grid">
         {VALUES.map(({ title, text, Icon }) => (
           <article className="values-strip__item" key={title}>
-            <Icon size={35} strokeWidth={1.15} aria-hidden="true" />
+            <span className="values-strip__symbol"><Icon size={57} strokeWidth={1.15} aria-hidden="true" /></span>
             <div><h3>{title}</h3><p>{text}</p></div>
           </article>
         ))}

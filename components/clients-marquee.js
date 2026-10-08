@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, X } from 'lucide-react';
 import { CLIENTS } from '@/lib/clients';
 
@@ -8,9 +8,9 @@ function ClientTile({ client, onClick, duplicate = false }) {
   return (
     <button
       type="button"
-      className="clients-marquee__tile"
-      aria-label={duplicate ? undefined : `Visualizza tutti i clienti, a partire da ${client.name}`}
-      tabIndex={duplicate ? -1 : 0}
+      className={`clients-marquee__tile${client.name === 'Presidenza del Consiglio dei Ministri' ? ' clients-marquee__tile--presidenza' : ''}`}
+      aria-label={`Visualizza le collaborazioni, a partire da ${client.name}`}
+      tabIndex={0}
       onClick={onClick}
     >
       {/* Immagini ufficiali di RAIA; non sono loghi generati o stock. */}
@@ -23,10 +23,51 @@ function ClientTile({ client, onClick, duplicate = false }) {
 export default function ClientsMarquee() {
   const dialogRef = useRef(null);
   const [selected, setSelected] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Blocca realmente lo scroll della pagina sotto il popup.
+  // Il position:fixed sul body copre anche Safari/iOS; alla chiusura
+  // ripristina posizione ed eventuali stili preesistenti.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const body = document.body;
+    const root = document.documentElement;
+    const y = window.scrollY;
+    const original = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      rootOverflow: root.style.overflow,
+    };
+    body.style.position = 'fixed';
+    body.style.top = `-${y}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    root.style.overflow = 'hidden';
+
+    return () => {
+      body.style.position = original.position;
+      body.style.top = original.top;
+      body.style.left = original.left;
+      body.style.right = original.right;
+      body.style.width = original.width;
+      body.style.overflow = original.overflow;
+      root.style.overflow = original.rootOverflow;
+      window.scrollTo(0, y);
+    };
+  }, [isOpen]);
 
   function openClients(clientName = null) {
     setSelected(clientName);
-    if (dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal();
+    if (dialogRef.current && !dialogRef.current.open) {
+      dialogRef.current.showModal();
+      setIsOpen(true);
+    }
   }
 
   function closeClients() {
@@ -49,7 +90,7 @@ export default function ClientsMarquee() {
           <div className="clients-marquee__group">
             {CLIENTS.map(client => <ClientTile client={client} key={client.name} onClick={() => openClients(client.name)} />)}
           </div>
-          <div className="clients-marquee__group" aria-hidden="true">
+          <div className="clients-marquee__group">
             {CLIENTS.map(client => <ClientTile duplicate client={client} key={`${client.name}-copy`} onClick={() => openClients(client.name)} />)}
           </div>
         </div>
@@ -60,7 +101,7 @@ export default function ClientsMarquee() {
         ref={dialogRef}
         className="clients-dialog"
         aria-labelledby="clients-dialog-title"
-        onClose={() => setSelected(null)}
+        onClose={() => { setSelected(null); setIsOpen(false); }}
         onClick={event => { if (event.target === event.currentTarget) closeClients(); }}
       >
         <div className="clients-dialog__panel">
