@@ -1,0 +1,91 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { ArrowUpRight, X } from 'lucide-react';
+import { CLIENTS } from '@/lib/clients';
+
+function ClientTile({ client, onClick, duplicate = false }) {
+  return (
+    <button
+      type="button"
+      className="clients-marquee__tile"
+      aria-label={duplicate ? undefined : `Visualizza tutti i clienti, a partire da ${client.name}`}
+      tabIndex={duplicate ? -1 : 0}
+      onClick={onClick}
+    >
+      {/* Immagini ufficiali di RAIA; non sono loghi generati o stock. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={client.src} alt={duplicate ? '' : client.name} width="180" height="120" loading="lazy" decoding="async" />
+    </button>
+  );
+}
+
+export default function ClientsMarquee() {
+  const dialogRef = useRef(null);
+  const [selected, setSelected] = useState(null);
+
+  function openClients(clientName = null) {
+    setSelected(clientName);
+    if (dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal();
+  }
+
+  function closeClients() {
+    dialogRef.current?.close();
+  }
+
+  return (
+    <section className="clients-section" aria-labelledby="clients-heading">
+      <div className="shell clients-section__heading">
+        <div>
+          <span className="section-overline">COLLABORAZIONI</span>
+          <h2 id="clients-heading">La fiducia, <em>nei fatti.</em></h2>
+        </div>
+        <button className="clients-section__all" type="button" onClick={() => openClients()}>
+          Tutte le collaborazioni <ArrowUpRight size={17} strokeWidth={1.6} aria-hidden="true" />
+        </button>
+      </div>
+      <div className="clients-marquee" aria-label="Loghi delle realtà con cui RAIA ha lavorato">
+        <div className="clients-marquee__rail">
+          <div className="clients-marquee__group">
+            {CLIENTS.map(client => <ClientTile client={client} key={client.name} onClick={() => openClients(client.name)} />)}
+          </div>
+          <div className="clients-marquee__group" aria-hidden="true">
+            {CLIENTS.map(client => <ClientTile duplicate client={client} key={`${client.name}-copy`} onClick={() => openClients(client.name)} />)}
+          </div>
+        </div>
+      </div>
+      <div className="shell clients-section__hint">Passa sui loghi per fermare lo scorrimento. Selezionane uno per vedere tutte le collaborazioni.</div>
+
+      <dialog
+        ref={dialogRef}
+        className="clients-dialog"
+        aria-labelledby="clients-dialog-title"
+        onClose={() => setSelected(null)}
+        onClick={event => { if (event.target === event.currentTarget) closeClients(); }}
+      >
+        <div className="clients-dialog__panel">
+          <header className="clients-dialog__header">
+            <div><span className="section-overline">RAIA / COLLABORAZIONI</span><h2 id="clients-dialog-title">Le realtà con cui <em>abbiamo lavorato.</em></h2></div>
+            <button className="clients-dialog__close" type="button" onClick={closeClients} aria-label="Chiudi elenco collaborazioni"><X size={23} strokeWidth={1.5} aria-hidden="true" /></button>
+          </header>
+          <div className="clients-dialog__grid" role="group" aria-label="Seleziona un logo per evidenziarlo">
+            {CLIENTS.map(client => (
+              <button
+                className={`clients-dialog__logo${selected === client.name ? ' is-selected' : ''}`}
+                key={client.name}
+                type="button"
+                aria-label={`Evidenzia ${client.name}`}
+                aria-pressed={selected === client.name}
+                onClick={() => setSelected(old => old === client.name ? null : client.name)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={client.src} alt={client.name} width="180" height="120" loading="lazy" decoding="async" />
+                <span className="clients-dialog__name">{client.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </dialog>
+    </section>
+  );
+}

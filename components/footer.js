@@ -15,9 +15,6 @@ export default function Footer() {
               <span>{COMPANY.description}</span>
             </div>
           </div>
-          <Link href="/preventivo" className="footer__cta">
-            <span>Parliamo del tuo progetto</span><ArrowUpRight size={17} strokeWidth={1.7} aria-hidden="true" />
-          </Link>
         </div>
         <div className="footer__grid">
           <nav className="footer__group" aria-label="Esplora il sito">

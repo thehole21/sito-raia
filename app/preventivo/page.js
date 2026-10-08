@@ -3,5 +3,5 @@ export const metadata = { title: 'Richiedi un preventivo', description: 'Prepara
 export default async function PreventivoPage({ searchParams }) {
   const params = await searchParams;
   const defaultService = typeof params?.servizio === 'string' ? params.servizio : '';
-  return <><section className="page-opening page-opening--quote shell"><div className="page-opening__eyebrow"><span className="little-dot" /> 04 / INIZIAMO DA QUI</div><div className="page-opening__grid"><h1>Raccontaci<br /><em>la tua idea.</em></h1><p>Seleziona una lavorazione e costruisci il tuo brief. Il form è attualmente una demo visiva, senza invio dei dati.</p></div></section><QuoteForm defaultService={defaultService}/></>;
+  return <><section className="page-opening page-opening--quote shell"><div className="page-opening__eyebrow"><span className="little-dot" /> IL TUO PROGETTO</div><div className="page-opening__grid"><h1>Raccontaci<br /><em>la tua idea.</em></h1><p>Compila un brief. Per ora puoi visualizzarne il riepilogo: il form non invia ancora dati.</p></div></section><QuoteForm defaultService={defaultService}/></>;
 }
