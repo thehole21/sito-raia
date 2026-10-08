@@ -1,6 +1,7 @@
 import './globals.css';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+import ScrollReveal from '@/components/scroll-reveal';
 
 export const metadata = {
   metadataBase: new URL('https://www.raiaweb.it'),
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
       <body>
         <a href="#main-content" className="skip-link">Vai al contenuto</a>
         <Header />
+        <ScrollReveal />
         <main id="main-content">{children}</main>
         <Footer />
       </body>
