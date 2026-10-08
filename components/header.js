@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Menu, X, ArrowRight } from 'lucide-react';
-import { NAV, COMPANY } from '@/lib/content';
+import { ArrowUpRight, Menu, X } from 'lucide-react';
+import SocialLinks from '@/components/social-links';
+import { NAV } from '@/lib/content';
 
 export default function Header() {
   const pathname = usePathname();
@@ -13,18 +14,21 @@ export default function Header() {
 
   useEffect(() => { setOpen(false); }, [pathname]);
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 12);
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
   useEffect(() => {
     document.body.classList.toggle('nav-open', open);
-    const closeEsc = (event) => { if (event.key === 'Escape') setOpen(false); };
-    window.addEventListener('keydown', closeEsc);
+    const onKeyDown = (event) => { if (event.key === 'Escape') setOpen(false); };
+    const onDesktop = () => { if (window.innerWidth >= 960) setOpen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', onDesktop);
     return () => {
       document.body.classList.remove('nav-open');
-      window.removeEventListener('keydown', closeEsc);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onDesktop);
     };
   }, [open]);
 
@@ -32,52 +36,56 @@ export default function Header() {
     <>
       <header className={`site-header ${scrolled ? 'site-header--scrolled' : ''} ${open ? 'site-header--open' : ''}`}>
         <div className="shell site-header__inner">
-          <Link href="/" className="brand" aria-label="RAIA, homepage" onClick={() => setOpen(false)}>
+          <Link href="/" className="brand" aria-label="RAIA, torna alla homepage" onClick={() => setOpen(false)}>
             <span className="brand__symbol" aria-hidden="true">R<span>/</span></span>
-            <span className="brand__wordmark">RAIA<small>STAMPA & COMUNICAZIONE</small></span>
+            <span className="brand__wordmark">RAIA<small>STAMPA &amp; COMUNICAZIONE</small></span>
           </Link>
+
           <nav className="header-links" aria-label="Navigazione principale">
             {NAV.map(({ label, href }) => (
-              <Link key={href} href={href} aria-current={pathname === href ? 'page' : undefined} className={pathname === href ? 'is-active' : ''}>{label}</Link>
+              <Link key={href} href={href} aria-current={pathname === href ? 'page' : undefined} className={pathname === href ? 'is-active' : ''}>
+                {label}
+              </Link>
             ))}
           </nav>
+
           <div className="header-actions">
-            <Link className="header-quote" href="/preventivo">Richiedi preventivo <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" /></Link>
-            <button className="header-menu" type="button" onClick={() => setOpen(!open)} aria-label={open ? 'Chiudi menu' : 'Apri menu'} aria-expanded={open} aria-controls="navigation-panel">
-              <span className="header-menu__caption">{open ? 'Chiudi' : 'Menu'}</span>
-              <span className="header-menu__circle">{open ? <X size={20} /> : <Menu size={20} />}</span>
+            <Link className="header-quote" href="/preventivo" aria-label="Richiedi un preventivo">
+              <span className="header-quote__text">Richiedi preventivo</span>
+              <span className="header-quote__icon"><ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" /></span>
+            </Link>
+            <button
+              className="header-menu" type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-label={open ? 'Chiudi il menu di navigazione' : 'Apri il menu di navigazione'}
+              aria-expanded={open} aria-controls="mobile-navigation"
+            >
+              {open ? <X size={20} strokeWidth={1.7} aria-hidden="true" /> : <Menu size={20} strokeWidth={1.7} aria-hidden="true" />}
             </button>
           </div>
         </div>
       </header>
-      <div className={`navigation-backdrop ${open ? 'is-open' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
-      <nav id="navigation-panel" className={`navigation-panel ${open ? 'is-open' : ''}`} aria-label="Menu completo" aria-hidden={!open} inert={!open}>
-        <div className="shell navigation-panel__inner">
-          <div className="navigation-panel__top"><span className="eyebrow eyebrow--light">INDICE / RAIA</span><span className="navigation-panel__line" /></div>
-          <div className="navigation-panel__grid">
-            <div className="navigation-panel__links">
-              {NAV.map(({ href, label }, index) => (
-                <Link key={href} href={href} className={pathname === href ? 'is-current' : ''} onClick={() => setOpen(false)}>
-                  <span className="nav-index">0{index + 1}</span>
-                  <span>{label}</span>
-                  <ArrowUpRight size={24} strokeWidth={1.25} aria-hidden="true" />
-                </Link>
-              ))}
-              <Link href="/preventivo" onClick={() => setOpen(false)} className={pathname === '/preventivo' ? 'is-current' : ''}><span className="nav-index">06</span><span>Preventivo</span><ArrowUpRight size={24} strokeWidth={1.25} aria-hidden="true" /></Link>
-            </div>
-            <div className="navigation-panel__aside">
-              <p className="nav-aside-eyebrow">IL PROSSIMO PROGETTO</p>
-              <h2>Il tuo, <em>naturalmente.</em></h2>
-              <p>Stampiamo, realizziamo e diamo forma a idee e spazi.</p>
-              <Link href="/preventivo" onClick={() => setOpen(false)}>Parliamone <ArrowRight size={18} aria-hidden="true" /></Link>
-              <div className="navigation-panel__contacts">
-                <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
-                <a href={`tel:${COMPANY.phoneLink}`}>{COMPANY.phone}</a>
-              </div>
-            </div>
-          </div>
-          <p className="navigation-panel__bottom">RAIA — PENSA / CREA / STAMPA</p>
+
+      <div className={`mobile-nav-backdrop ${open ? 'is-open' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
+      <nav
+        id="mobile-navigation"
+        className={`mobile-nav-panel ${open ? 'is-open' : ''}`}
+        aria-label="Navigazione mobile"
+        aria-hidden={!open}
+        inert={!open}
+      >
+        <div className="mobile-nav-panel__heading"><strong>Navigazione</strong><span>RAIA / MENU</span></div>
+        <div className="mobile-nav-panel__links">
+          {NAV.map(({ href, label }) => (
+            <Link key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setOpen(false)}>
+              <span>{label}</span><ArrowUpRight size={17} strokeWidth={1.6} aria-hidden="true" />
+            </Link>
+          ))}
         </div>
+        <Link href="/preventivo" className="mobile-nav-panel__cta" onClick={() => setOpen(false)}>
+          Richiedi un preventivo <ArrowUpRight size={18} strokeWidth={1.6} aria-hidden="true" />
+        </Link>
+        <div className="mobile-nav-panel__bottom"><span>SEGUICI</span><SocialLinks label="RAIA sui social dal menu mobile" /></div>
       </nav>
     </>
   );
